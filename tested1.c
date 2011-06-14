@@ -106,56 +106,70 @@ START_TEST("Testar Busca"){
     free(a50);
 }END_TEST()
 
-START_TEST("Testar Inserção Simples"){
-    arvore* arvore = NULL;
+START_TEST("Testar Append da lista") {
+    lista* l = NULL;
+    
 
-    TEST("Insere elemento 50 na arvore vazia");
-    ASSERT(inserir_simples(&arvore, 50) == 1);
-    ASSERT(arvore->dado == 50);
+    TEST("Insere elemento 10 na lista vazia");
+    append(&l, 10);
+    ASSERT(l->dado == 10);
 
-    TEST("Falha ao tentar reinserir elemento 50 na arvore vazial");
-    ASSERT(inserir_simples(&arvore, 50) == 0);
+    TEST("Insere elemento 27 na lista com elemento 10")
+    append(&l, 27);
+    ASSERT(l->dado == 27 && l->prox->dado == 10);
 
-    TEST("Insere elemento 30 na arvore resultante");
-    ASSERT(inserir_simples(&arvore, 30) == 1);
-    ASSERT(arvore->esq->dado == 30);
+    desocupar_lista(l);
+    
+} END_TEST()
 
-    TEST("Insere elemento 90 na arvore resultante");
-    ASSERT(inserir_simples(&arvore, 90) == 1);
-    ASSERT(arvore->dir->dado == 90)
+START_TEST("Testar remover da arvore") {
+    arvore* t = NULL;
+    int* i = NULL;
+    
 
-    TEST("Insere elemento 100 na arvore resultante");
-    ASSERT(inserir_simples(&arvore, 100) == 1);
-    ASSERT(arvore->dir->dir->dado == 100)
+    TEST("remove elemento 1 da arvore com elemento 1");
+    inserir(&t, 1, 1);
+    remove_elemento(&t, 1, i);
+    ASSERT(t == NULL);
 
-    TEST("Insere elemento 20 na arvore resultante");
-    ASSERT(inserir_simples(&arvore, 20) == 1);
-    ASSERT(arvore->esq->esq->dado == 20);
+    TEST("remove elemento 1 da arvore com elementos 1 e 2")
+    inserir(&t, 1, 1);
+    inserir(&t, 2, 1);
+    remove_elemento(&t, 1, i);
+    ASSERT(t->dado == 2);
 
-    TEST("Insere elemento 40 na arvore resultante");
-    ASSERT(inserir_simples(&arvore, 40) == 1);
-    ASSERT(arvore->esq->dir->dado == 40);
+    TEST("remove elemento 3 da arvore com elementos 1 e 2 e 3 e 4")
+    inserir(&t, 2, 1);
+    inserir(&t, 1, 1);
+    inserir(&t, 3, 1);
+    inserir(&t, 4, 1);
+    remove_elemento(&t, 3, i);
+    ASSERT(
+        t->dado == 2 &&
+        t->esq->dado == 1 && 
+        t->dir->dado == 4 
+);
 
-    desocupar(arvore);
-
-}END_TEST()
+    desocupar_arvore(t);
+    
+} END_TEST()
 
 START_TEST("Testar Inserção AVL"){
     arvore* arvore = NULL;
 
     TEST("Insere elemento 50 na arvore vazia");
-    inserir(&arvore, 50);
+    inserir(&arvore, 50, 1);
     ASSERT(arvore->dado == 50 && arvore->bal == 0);
 
     TEST("Insere elemento 40 na arvore resultante");
-    inserir(&arvore, 40);
+    inserir(&arvore, 40, 1);
     ASSERT(
         arvore->dado == 50 && arvore->bal == -1 &&
         arvore->esq->dado == 40 && arvore->esq->bal == 0
     );
 
     TEST("Insere elemento 60 na arvore resultante");
-    inserir(&arvore, 60);
+    inserir(&arvore, 60, 1);
     ASSERT(
         arvore->dado == 50 && arvore->bal == 0 && 
         arvore->esq->dado == 40 && arvore->esq->bal == 0 && 
@@ -163,7 +177,7 @@ START_TEST("Testar Inserção AVL"){
     1);
 
     TEST("Insere elemento 45 na arvore resultante");
-    inserir(&arvore, 45);
+    inserir(&arvore, 45, 1);
     ASSERT(
         arvore->dado == 50 && arvore->bal == -1 && 
         arvore->esq->dado == 40 && arvore->esq->bal == 1 && 
@@ -172,7 +186,7 @@ START_TEST("Testar Inserção AVL"){
     1);
 
     TEST("Insere elemento 35 na arvore resultante");
-    inserir(&arvore, 35);
+    inserir(&arvore, 35, 1);
     ASSERT(
         arvore->dado == 50 && arvore->bal == -1 && 
         arvore->esq->dado == 40 && arvore->esq->bal == 0 && 
@@ -182,7 +196,7 @@ START_TEST("Testar Inserção AVL"){
     1);
     
     TEST("Insere elemento 25 na arvore resultante (Rotação direita)");
-    inserir(&arvore, 25);
+    inserir(&arvore, 25, 1);
     ASSERT(
         arvore->dado == 40 && arvore->bal == 0 && 
         arvore->dir->dado == 50 && arvore->dir->bal == 0 &&
@@ -193,16 +207,16 @@ START_TEST("Testar Inserção AVL"){
     1);
 
     
-    desocupar(arvore);
+    desocupar_arvore(arvore);
 
     arvore = NULL;
 
     TEST("Refaz arvore na ordem 40,35,50,45,60");
-    inserir(&arvore, 40);
-    inserir(&arvore, 35);
-    inserir(&arvore, 50);
-    inserir(&arvore, 45);
-    inserir(&arvore, 60);
+    inserir(&arvore, 40, 1);
+    inserir(&arvore, 35, 1);
+    inserir(&arvore, 50, 1);
+    inserir(&arvore, 45, 1);
+    inserir(&arvore, 60, 1);
     ASSERT(
         arvore->dado == 40 && arvore->bal == 1 && 
         arvore->dir->dado == 50 && arvore->dir->bal == 0 &&
@@ -212,7 +226,7 @@ START_TEST("Testar Inserção AVL"){
     1);
 
     TEST("Insere elemento 70 na arvore resultante (Rotação esquerda)");
-    inserir(&arvore, 70);
+    inserir(&arvore, 70, 1);
     ASSERT(
         arvore->dado == 50 && arvore->bal == 0 && 
         arvore->dir->dado == 60 && arvore->dir->bal == 1 &&
@@ -222,16 +236,16 @@ START_TEST("Testar Inserção AVL"){
         arvore->esq->esq->dado == 35 && arvore->esq->esq->bal == 0 &&  
     1);    
 
-    desocupar(arvore);
+    desocupar_arvore(arvore);
 
     arvore = NULL;
 
     TEST("Refaz arvore na ordem 50,40,60,45,35");
-    inserir(&arvore, 50);
-    inserir(&arvore, 40);
-    inserir(&arvore, 60);
-    inserir(&arvore, 45);
-    inserir(&arvore, 35);
+    inserir(&arvore, 50, 1);
+    inserir(&arvore, 40, 1);
+    inserir(&arvore, 60, 1);
+    inserir(&arvore, 45, 1);
+    inserir(&arvore, 35, 1);
     ASSERT(
         arvore->dado == 50 && arvore->bal == -1 && 
         arvore->esq->dado == 40 && arvore->esq->bal == 0 && 
@@ -241,7 +255,7 @@ START_TEST("Testar Inserção AVL"){
     1);
 
     TEST("Insere elemento 42 na arvore resultante (Rotação dupla direita)");
-    inserir(&arvore, 42);
+    inserir(&arvore, 42, 1);
     ASSERT(
         arvore->dado == 45 && arvore->bal == 0 && 
         arvore->dir->dado == 50 && arvore->dir->bal == 1 &&
@@ -251,16 +265,16 @@ START_TEST("Testar Inserção AVL"){
         arvore->esq->esq->dado == 35 && arvore->esq->esq->bal == 0 &&  
     1);  
      
-    desocupar(arvore);
+    desocupar_arvore(arvore);
 
     arvore = NULL;
 
     TEST("Refaz arvore na ordem 40,35,50,45,60");
-    inserir(&arvore, 40);
-    inserir(&arvore, 35);
-    inserir(&arvore, 50);
-    inserir(&arvore, 45);
-    inserir(&arvore, 60);
+    inserir(&arvore, 40, 1);
+    inserir(&arvore, 35, 1);
+    inserir(&arvore, 50, 1);
+    inserir(&arvore, 45, 1);
+    inserir(&arvore, 60, 1);
     ASSERT(
         arvore->dado == 40 && arvore->bal == 1 && 
         arvore->dir->dado == 50 && arvore->dir->bal == 0 &&
@@ -270,7 +284,7 @@ START_TEST("Testar Inserção AVL"){
     1);
 
     TEST("Insere elemento 47 na arvore resultante (Rotação dupla esquerda)");
-    inserir(&arvore, 47);
+    inserir(&arvore, 47, 1);
     ASSERT(
         arvore->dado == 45 && arvore->bal == 0 && 
         arvore->dir->dado == 50 && arvore->dir->bal == 0 &&
@@ -280,7 +294,7 @@ START_TEST("Testar Inserção AVL"){
         arvore->esq->esq->dado == 35 && arvore->esq->esq->bal == 0 &&  
     1);  
      
-    desocupar(arvore);
+    desocupar_arvore(arvore);
 
 }END_TEST()
 

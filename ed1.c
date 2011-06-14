@@ -3,92 +3,66 @@
 #include "stdio.h"
 
 typedef struct _arvore arvore;
-
 struct _arvore {
     arvore* dir;
     arvore* esq;
     int dado;
     int bal;
 };
-/*
-void imprime_lista(int* list, int tamanho)
-{
-    int i;
-    for (i = 0; i < tamanho; i++){
-        printf("%i ", list[i]);
-    }
 
+typedef struct _lista lista;
+struct _lista {
+    lista* prox;
+    int dado;
+};
+
+
+
+void desocupar_arvore(arvore* t){
+    if (t != NULL){
+        desocupar_arvore(t->dir);
+        desocupar_arvore(t->esq);
+        free(t);
+    }
 }
 
-void append(int* list, int dado)
-{
-    int i = 0;
-    while (list[i] != -1){
-        i++;
+void desocupar_lista(lista* l) {
+    if (l != NULL) {
+        desocupar_lista(l->prox);
+        free(l);
     }
-    list[i] = dado;
 }
 
-void to_list(arvore *t, int* list)
-{
-    if (t->esq != NULL){
-        to_list(t->esq, list);
-    } 
-    append(list, t->dado);
-    if (t->dir != NULL){
-        to_list(t->dir, list);
-    } 
-    free(t);
+void novo_no_arvore(arvore** t, int valor){
+    *t = malloc(sizeof(arvore));
+    (*t)->dado = valor;
+    (*t)->esq = NULL; (*t)->dir = NULL; 
+    (*t)->bal = 0;
 }
 
-void remove_elemento(arvore** t, int elemento, int* existe)
+void novo_no_lista(lista** l, int dado)
 {
-    int *lista;
-    int tamanho;
-    int i = 0;
-
-    if (*t == NULL){
-        *existe = 0;        
-        return;
-    }
-    
-    tamanho = count(*t);
-    lista = malloc(sizeof(int)*tamanho);
-    for (i = 0; i<tamanho; i++){
-        lista[i] = -1;
-    }
-    to_list(*t, lista);
-    
-    *t = NULL;
-
-    *existe = 0;
-    for (i = 0; i < tamanho; i++){
-        if (lista[i] != elemento){
-//            incluir(t, elemento);
-        }else{
-            *existe = 1;
-        }
-    }
-
-    
-
-    free(lista);
-} 
-
-
-int count(arvore *t)
-{
-    if (t == NULL)
-        return 0;
-    return count(t->esq) + count(t->dir) + 1;
+    *l = malloc(sizeof(lista));
+    (*l)->dado = dado;
+    (*l)->prox = NULL;
 }
 
-
-int ed1(void)
+void append(lista** l, int dado)
 {
-    return 1;
+    lista* novo;
+    novo_no_lista(&novo, dado);
+    novo->prox = (*l);
+    (*l) = novo;
 }
-*/
+
+void to_list(arvore *t, lista** l)
+{
+    if (t != NULL){
+        to_list(t->esq, l);
+        append(l, t->dado);
+        to_list(t->dir, l);
+    }
+}
 
 int busca(arvore** t, arvore** pai, int elemento){
     arvore** temp;    
@@ -115,35 +89,6 @@ int busca(arvore** t, arvore** pai, int elemento){
         return busca(t, pai, elemento); 
     }
 
-}
-
-int inserir_simples(arvore** t, int elemento){ 
-    arvore* temp = *t;
-    arvore* pai = NULL;
-    arvore* novo;
-    int encontrou = busca(&temp, &pai, elemento);
-    
-    novo = malloc(sizeof(arvore));
-    novo->esq = NULL; novo->dir = NULL; novo->dado = elemento;
-
-    if (encontrou == 0)
-        *t = novo;
-    else if (encontrou == 1){
-        printf("Já existe este elemento na arvore!");
-        free(novo);
-    } else if (encontrou == 2)
-        temp->esq = novo;
-    else //if (encontrou == 3)
-        temp->dir = novo; 
-    return (encontrou != 1);
-}
-
-
-void novo_no(arvore** t, int valor){
-    *t = malloc(sizeof(arvore));
-    (*t)->dado = valor;
-    (*t)->esq = NULL; (*t)->dir = NULL; 
-    (*t)->bal = 0;
 }
 
 
@@ -194,15 +139,17 @@ void caso2(arvore** t){
 }
 
 
-int inserir(arvore** t, int valor){ 
+int inserir(arvore** t, int valor, int texto){ 
     if (*t == NULL){    
-        novo_no(t, valor);
+        novo_no_arvore(t, valor);
         return 1;
     }else if ((*t)->dado == valor){
-        printf("Já existe este elemento na arvore!");
+        if (texto) {
+            printf("Já existe este elemento na arvore!");
+        }
         return 0;
     }else if ((*t)->dado > valor){
-        if (inserir(&((*t)->esq), valor)){
+        if (inserir(&((*t)->esq), valor, texto)){
             switch ((*t)->bal){
                 case 0: 
                     (*t)->bal = -1;
@@ -216,7 +163,7 @@ int inserir(arvore** t, int valor){
             }
         }
     }else if ((*t)->dado < valor){
-        if (inserir(&((*t)->dir), valor)){
+        if (inserir(&((*t)->dir), valor, texto)){
             switch ((*t)->bal){
                 case 0: 
                     (*t)->bal = 1;
@@ -232,32 +179,86 @@ int inserir(arvore** t, int valor){
     }
 }
 
-void desocupar(arvore* t){
-    if (t != NULL){
-        desocupar(t->dir);
-        desocupar(t->esq);
-        free(t);
+
+void remove_elemento(arvore** t, int elemento, int* existe)
+{
+    lista *l = NULL; 
+    int i = 0;
+
+    if (*t == NULL){
+        *existe = 0;        
+        return;
+    }
+
+    to_list(*t, &l);
+    desocupar_arvore(*t);
+    *t = NULL;
+
+    lista *temp = l;
+ 
+    while(temp != NULL) {
+        
+        if (temp->dado != elemento)
+            inserir(t, temp->dado, 0);
+        temp = temp->prox;
+    }
+
+    desocupar_lista(l);
+}
+
+void uniao(arvore *t1, arvore *t2, arvore **u)
+{
+    lista *l1 = NULL;
+    lista *l2 = NULL;
+
+    to_list(t1, &l1);
+    to_list(t2, &l2);
+    
+    
+    lista *temp = l1;
+    while(temp != NULL) {
+        inserir(u, temp->dado, 0);
+        temp = temp->prox;
+    }
+
+    temp = l2;
+    while(temp != NULL) {
+        inserir(u, temp->dado, 0);
+        temp = temp->prox;
+    }
+    
+}
+
+int pertence(lista *l, int elem)
+{
+    while (l != NULL) {
+        if (l->dado == elem)
+            return 1;
+    }
+    return 0;
+}
+
+void intersecao(arvore *t1, arvore *t2, arvore **in)
+{
+    lista *l1 = NULL;
+    lista *l2 = NULL;
+    lista *in = NULL;
+
+    to_list(t1, &l1);
+    to_list(t2, &l2);
+
+    lista *temp = l1;
+    while(temp != NULL) {
+        if (pertence(l2, temp->dado))
+            inserir(in, temp->dado, 0);
+        temp = temp->prox;
     }
 }
 
-
-//    lista[0] = t;
-//    while (i<tamanho){
-//        if (lista[i]->esq != NULL){
-//            lista[i+1] = lista[i]->esq;
-//            if (lista[i]->dir != NULL){
-//                lista[i+2] = lista[i]->dir;
-//            }
-//        }else if (lista[i]->dir != NULL){
-//            lista[i+1] = lista[i]->dir;
-//            if (lista[i]->esq != NULL){
-//                lista[i+2] = lista[i]->esq;
-//            }
-//        }
-//        i++;
-//
-//    }
-
+void subtraca(arvore *t1, arvore *t2, arvore **s)
+{
+    
+}
 
 
 
