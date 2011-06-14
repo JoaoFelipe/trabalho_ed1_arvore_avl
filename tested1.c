@@ -1,9 +1,17 @@
 #include "simplectest/tests.h"
 #include "ed1.c"
 
+void monta_arvore(int tamanho, arvore** t, int* lista){
+    int i;
+    for (i=0; i<tamanho; i++){
+        inserir(t, lista[i], 0);
+    }
+}
+
 START_TESTS()
 
-START_TEST("Testar Busca"){
+START_TEST("Testar Busca")
+{
 //      Arvore:
 //          50
 //      30      90
@@ -104,53 +112,232 @@ START_TEST("Testar Busca"){
     free(a90);
     free(a30);
     free(a50);
-}END_TEST()
-
-START_TEST("Testar Append da lista") {
-    lista* l = NULL;
-    
-
-    TEST("Insere elemento 10 na lista vazia");
-    append(&l, 10);
-    ASSERT(l->dado == 10);
-
-    TEST("Insere elemento 27 na lista com elemento 10")
-    append(&l, 27);
-    ASSERT(l->dado == 27 && l->prox->dado == 10);
-
-    desocupar_lista(l);
-    
-} END_TEST()
+}
+END_TEST()
 
 START_TEST("Testar remover da arvore") {
     arvore* t = NULL;
-    int* i = NULL;
     
-
+    // 1 -> 1
     TEST("remove elemento 1 da arvore com elemento 1");
-    inserir(&t, 1, 1);
-    remove_elemento(&t, 1, i);
-    ASSERT(t == NULL);
+    {
+        t = NULL;
+        inserir(&t, 1, 1);
+        remove_elemento(&t, 1);
+        ASSERT(t == NULL);
+        desocupar_arvore(t); 
+    }
 
-    TEST("remove elemento 1 da arvore com elementos 1 e 2")
-    inserir(&t, 1, 1);
-    inserir(&t, 2, 1);
-    remove_elemento(&t, 1, i);
-    ASSERT(t->dado == 2);
+    //  7  -> 7
+    //5
+    TEST("remove elemento 5 da arvore com elementos 7 e 5")
+    {    
+        t = NULL;
+        int lista[]= {7,5};
+        monta_arvore(2, &t, lista);
+        remove_elemento(&t, 5);
+        ASSERT(t->dado == 7 && t->esq == NULL && t->dir == NULL);
+        desocupar_arvore(t); 
+    }
 
-    TEST("remove elemento 3 da arvore com elementos 1 e 2 e 3 e 4")
-    inserir(&t, 2, 1);
-    inserir(&t, 1, 1);
-    inserir(&t, 3, 1);
-    inserir(&t, 4, 1);
-    remove_elemento(&t, 3, i);
-    ASSERT(
-        t->dado == 2 &&
-        t->esq->dado == 1 && 
-        t->dir->dado == 4 
-);
 
-    desocupar_arvore(t);
+    //  7    ->  7
+    //5   9    5
+    TEST("remove elemento 9 da arvore com elementos 7 5 9")
+    {
+        t = NULL;
+        int lista[]= {7,5,9};
+        monta_arvore(3, &t, lista);
+        remove_elemento(&t, 9);
+        ASSERT(
+            t->dado == 7 &&
+            t->esq->dado == 5 && 
+            t->dir == NULL &&
+        1);
+        desocupar_arvore(t); 
+    }
+
+
+    //  7    ->  9
+    //5   9    5
+    TEST("remove elemento 7 da arvore com elementos 7 5 9")
+    {
+        t = NULL;
+        int lista[]= {7,5,9};
+        monta_arvore(3, &t, lista);
+        remove_elemento(&t, 7);
+        ASSERT(t->dado == 9 && t->esq->dado == 5 && t->dir == NULL);
+        desocupar_arvore(t);
+    }
+
+    //  7    ->  8
+    //5   9    5   9
+    //   8 11       11
+    TEST("remove elemento 7 da arvore com elementos 7 5 9 8 11")
+    {
+        t = NULL;
+        int lista[]= {7,5,9,8,11};
+        monta_arvore(5, &t, lista);
+        remove_elemento(&t, 7);
+        ASSERT(
+            t->dado == 8 && 
+            t->esq->dado == 5 && 
+            t->dir->dado == 9 &&
+            t->dir->dir->dado == 11 &&
+            t->dir->esq == NULL &&
+        1);
+
+        desocupar_arvore(t);
+    }
+
+    //    7    ->  5
+    //  5   9    3   7
+    // 3        
+    TEST("remove elemento 9 da arvore com elementos 7 5 9 3")
+    {
+        t = NULL;
+        int lista[]= {7,5,9,3};
+        monta_arvore(4, &t, lista);
+        remove_elemento(&t, 9);
+        ASSERT(
+            t->dado == 5 && 
+            t->bal == 0 &&
+            t->esq->dado == 3 && 
+            t->esq->bal == 0 &&
+            t->dir->dado == 7 &&
+            t->dir->bal == 0 &&
+        1);
+        desocupar_arvore(t);
+    }
+
+    //    7    ->  5
+    //  5   9    3   9
+    // 3        
+    TEST("remove elemento 7 da arvore com elementos 7 5 9 3")
+    {
+        t = NULL;
+        int lista[]= {7,5,9,3};
+        monta_arvore(4, &t, lista);
+        remove_elemento(&t, 7);
+        ASSERT(
+            t->dado == 5 && 
+            t->bal == 0 &&
+            t->esq->dado == 3 && 
+            t->esq->bal == 0 &&
+            t->dir->dado == 9 &&
+            t->dir->bal == 0 &&
+        1);
+        desocupar_arvore(t);
+    }
+
+    //    7    ->  7
+    //  5   9    3   9
+    // 3        
+    TEST("remove elemento 5 da arvore com elementos 7 5 9 3")
+    {
+        t = NULL;
+        int lista[]= {7,5,9,3};
+        monta_arvore(4, &t, lista);
+        remove_elemento(&t, 5);
+        ASSERT(
+            t->dado == 7 && 
+            t->bal == 0 &&
+            t->esq->dado == 3 && 
+            t->esq->bal == 0 &&
+            t->dir->dado == 9 &&
+            t->dir->bal == 0 &&
+        1);
+        desocupar_arvore(t);
+    }
+
+    //    7    ->  7
+    //  5   9    5   9
+    // 3        
+    TEST("remove elemento 3 da arvore com elementos 7 5 9 3")
+    {
+        t = NULL;
+        int lista[]= {7,5,9,3};
+        monta_arvore(4, &t, lista);
+        remove_elemento(&t, 3);
+        ASSERT(
+            t->dado == 7 && 
+            t->bal == 0 &&
+            t->esq->dado == 5 && 
+            t->esq->bal == 0 &&
+            t->dir->dado == 9 &&
+            t->dir->bal == 0 &&
+        1);
+        desocupar_arvore(t);
+    }
+
+    //    7    ->  7
+    //  5   9    5   9
+    //       11        
+    TEST("remove elemento 11 da arvore com elementos 7 5 9 11")
+    {
+        t = NULL;
+        int lista[]= {7,5,9,11};
+        monta_arvore(4, &t, lista);
+        remove_elemento(&t, 11);
+        ASSERT(
+            t->dado == 7 && 
+            t->bal == 0 &&
+            t->esq->dado == 5 && 
+            t->esq->bal == 0 &&
+            t->dir->dado == 9 &&
+            t->dir->bal == 0 &&
+        1);
+        desocupar_arvore(t);
+    }
+
+    //    7    ->  7
+    //  5   9    5   11
+    //       11        
+    TEST("remove elemento 9 da arvore com elementos 7 5 9 11")
+    {
+        t = NULL;
+        int lista[]= {7,5,9,11};
+        monta_arvore(4, &t, lista);
+        remove_elemento(&t, 9);
+        ASSERT(
+            t->dado == 7 && 
+            t->bal == 0 &&
+            t->esq->dado == 5 && 
+            t->esq->bal == 0 &&
+            t->dir->dado == 11 &&
+            t->dir->bal == 0 &&
+        1);
+        desocupar_arvore(t);
+    }
+
+    //      9     ->     6
+    //  5       11    5     9
+    //4   6   10    4     7   11 
+    //     7        
+    TEST("remove elemento 10 da arvore com elementos 9 5 11 4 6 10 7")
+    {
+        t = NULL;
+        int lista[]= {9, 5, 11, 4, 6, 10, 7};
+        monta_arvore(7, &t, lista);
+        remove_elemento(&t, 10);
+        ASSERT(
+            t->dado == 6 && 
+            t->bal == 0 &&
+            t->esq->dado == 5 && 
+            t->esq->bal == -1 &&
+            t->esq->esq->dado == 4 &&
+            t->esq->esq->bal == 0 &&
+            t->dir->dado == 9 &&
+            t->dir->bal == 0 &&
+            t->dir->esq->dado == 7 &&
+            t->dir->esq->bal == 0 &&
+            t->dir->dir->dado == 11 &&
+            t->dir->dir->bal == 0 &&
+        1);
+        desocupar_arvore(t);
+    }
+
+
     
 } END_TEST()
 
