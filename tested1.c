@@ -1,11 +1,17 @@
 #include "simplectest/tests.h"
 #include "ed1.c"
+#include <stdarg.h>
 
-void monta_arvore(int tamanho, arvore** t, int* lista){
-    int i;
+void monta_arvore(int tamanho, arvore** t, ...){
+    int i;    
+    va_list lista;
+    *t = NULL;
+
+    va_start(lista, tamanho);
     for (i=0; i<tamanho; i++){
-        inserir(t, lista[i], 0);
+        inserir(t, va_arg(lista,int), 0);
     }
+    va_end(lista);
 }
 
 START_TESTS()
@@ -115,14 +121,13 @@ START_TEST("Testar Busca")
 }
 END_TEST()
 
-START_TEST("Testar remover da arvore") {
+START_TEST("Testar Remoção da arvore") {
     arvore* t = NULL;
     
     // 1 -> 1
     TEST("remove elemento 1 da arvore com elemento 1");
     {
-        t = NULL;
-        inserir(&t, 1, 1);
+        monta_arvore(1, &t, 1);
         remove_elemento(&t, 1);
         ASSERT(t == NULL);
         desocupar_arvore(t); 
@@ -132,9 +137,7 @@ START_TEST("Testar remover da arvore") {
     //5
     TEST("remove elemento 5 da arvore com elementos 7 e 5")
     {    
-        t = NULL;
-        int lista[]= {7,5};
-        monta_arvore(2, &t, lista);
+        monta_arvore(2, &t, 7, 5);
         remove_elemento(&t, 5);
         ASSERT(t->dado == 7 && t->esq == NULL && t->dir == NULL);
         desocupar_arvore(t); 
@@ -145,9 +148,7 @@ START_TEST("Testar remover da arvore") {
     //5   9    5
     TEST("remove elemento 9 da arvore com elementos 7 5 9")
     {
-        t = NULL;
-        int lista[]= {7,5,9};
-        monta_arvore(3, &t, lista);
+        monta_arvore(3, &t, 7, 5, 9);
         remove_elemento(&t, 9);
         ASSERT(
             t->dado == 7 &&
@@ -162,9 +163,7 @@ START_TEST("Testar remover da arvore") {
     //5   9    5
     TEST("remove elemento 7 da arvore com elementos 7 5 9")
     {
-        t = NULL;
-        int lista[]= {7,5,9};
-        monta_arvore(3, &t, lista);
+        monta_arvore(3, &t, 7, 5, 9);
         remove_elemento(&t, 7);
         ASSERT(t->dado == 9 && t->esq->dado == 5 && t->dir == NULL);
         desocupar_arvore(t);
@@ -175,9 +174,7 @@ START_TEST("Testar remover da arvore") {
     //   8 11       11
     TEST("remove elemento 7 da arvore com elementos 7 5 9 8 11")
     {
-        t = NULL;
-        int lista[]= {7,5,9,8,11};
-        monta_arvore(5, &t, lista);
+        monta_arvore(5, &t, 7, 5, 9, 8, 11);
         remove_elemento(&t, 7);
         ASSERT(
             t->dado == 8 && 
@@ -195,9 +192,7 @@ START_TEST("Testar remover da arvore") {
     // 3        
     TEST("remove elemento 9 da arvore com elementos 7 5 9 3")
     {
-        t = NULL;
-        int lista[]= {7,5,9,3};
-        monta_arvore(4, &t, lista);
+        monta_arvore(4, &t, 7, 5, 9, 3);
         remove_elemento(&t, 9);
         ASSERT(
             t->dado == 5 && 
@@ -215,9 +210,7 @@ START_TEST("Testar remover da arvore") {
     // 3        
     TEST("remove elemento 7 da arvore com elementos 7 5 9 3")
     {
-        t = NULL;
-        int lista[]= {7,5,9,3};
-        monta_arvore(4, &t, lista);
+        monta_arvore(4, &t, 7, 5, 9, 3);
         remove_elemento(&t, 7);
         ASSERT(
             t->dado == 5 && 
@@ -235,9 +228,7 @@ START_TEST("Testar remover da arvore") {
     // 3        
     TEST("remove elemento 5 da arvore com elementos 7 5 9 3")
     {
-        t = NULL;
-        int lista[]= {7,5,9,3};
-        monta_arvore(4, &t, lista);
+        monta_arvore(4, &t, 7, 5, 9, 3);
         remove_elemento(&t, 5);
         ASSERT(
             t->dado == 7 && 
@@ -255,9 +246,7 @@ START_TEST("Testar remover da arvore") {
     // 3        
     TEST("remove elemento 3 da arvore com elementos 7 5 9 3")
     {
-        t = NULL;
-        int lista[]= {7,5,9,3};
-        monta_arvore(4, &t, lista);
+        monta_arvore(4, &t, 7, 5, 9, 3);
         remove_elemento(&t, 3);
         ASSERT(
             t->dado == 7 && 
@@ -275,9 +264,7 @@ START_TEST("Testar remover da arvore") {
     //       11        
     TEST("remove elemento 11 da arvore com elementos 7 5 9 11")
     {
-        t = NULL;
-        int lista[]= {7,5,9,11};
-        monta_arvore(4, &t, lista);
+        monta_arvore(4, &t, 7, 5, 9, 11);
         remove_elemento(&t, 11);
         ASSERT(
             t->dado == 7 && 
@@ -295,9 +282,7 @@ START_TEST("Testar remover da arvore") {
     //       11        
     TEST("remove elemento 9 da arvore com elementos 7 5 9 11")
     {
-        t = NULL;
-        int lista[]= {7,5,9,11};
-        monta_arvore(4, &t, lista);
+        monta_arvore(4, &t, 7, 5, 9, 11);
         remove_elemento(&t, 9);
         ASSERT(
             t->dado == 7 && 
@@ -316,9 +301,7 @@ START_TEST("Testar remover da arvore") {
     //     7        
     TEST("remove elemento 10 da arvore com elementos 9 5 11 4 6 10 7")
     {
-        t = NULL;
-        int lista[]= {9, 5, 11, 4, 6, 10, 7};
-        monta_arvore(7, &t, lista);
+        monta_arvore(7, &t, 9, 5, 11, 4, 6, 10, 7);
         remove_elemento(&t, 10);
         ASSERT(
             t->dado == 6 && 
@@ -399,11 +382,7 @@ START_TEST("Testar Inserção AVL"){
     arvore = NULL;
 
     TEST("Refaz arvore na ordem 40,35,50,45,60");
-    inserir(&arvore, 40, 1);
-    inserir(&arvore, 35, 1);
-    inserir(&arvore, 50, 1);
-    inserir(&arvore, 45, 1);
-    inserir(&arvore, 60, 1);
+    monta_arvore(5, &arvore, 40, 35, 50, 45, 60);
     ASSERT(
         arvore->dado == 40 && arvore->bal == 1 && 
         arvore->dir->dado == 50 && arvore->dir->bal == 0 &&
@@ -428,11 +407,7 @@ START_TEST("Testar Inserção AVL"){
     arvore = NULL;
 
     TEST("Refaz arvore na ordem 50,40,60,45,35");
-    inserir(&arvore, 50, 1);
-    inserir(&arvore, 40, 1);
-    inserir(&arvore, 60, 1);
-    inserir(&arvore, 45, 1);
-    inserir(&arvore, 35, 1);
+    monta_arvore(5, &arvore, 50, 40, 60, 45, 35);
     ASSERT(
         arvore->dado == 50 && arvore->bal == -1 && 
         arvore->esq->dado == 40 && arvore->esq->bal == 0 && 
@@ -457,11 +432,7 @@ START_TEST("Testar Inserção AVL"){
     arvore = NULL;
 
     TEST("Refaz arvore na ordem 40,35,50,45,60");
-    inserir(&arvore, 40, 1);
-    inserir(&arvore, 35, 1);
-    inserir(&arvore, 50, 1);
-    inserir(&arvore, 45, 1);
-    inserir(&arvore, 60, 1);
+    monta_arvore(5, &arvore, 40, 35, 50, 45, 60);
     ASSERT(
         arvore->dado == 40 && arvore->bal == 1 && 
         arvore->dir->dado == 50 && arvore->dir->bal == 0 &&
@@ -485,61 +456,317 @@ START_TEST("Testar Inserção AVL"){
 
 }END_TEST()
 
+START_TEST("Testar união de arvores"){
 
-/*
-    TEST("Tamanho da arvore");
-    {
-        arvore* a = malloc(sizeof(arvore));
-        a->esq = NULL;
-        a->dir = NULL;
-        a->dado = 2;
-
-        ASSERT(count(a) == 1);
-
-        arvore* b = malloc(sizeof(arvore));
-        b->esq = a;
-        b->dir = NULL;
-        b->dado = 1;
-
-        ASSERT(count(b) == 2);
-
-
-        arvore* c = malloc(sizeof(arvore));
-        c->esq = NULL;
-        c->dir = b;
-        c->dado = 0;
-
-        ASSERT(count(c) == 3);
-
-        arvore* d = malloc(sizeof(arvore));
-        d->esq = a;
-        d->dir = a;
-        d->dado = 0;
-
-        ASSERT(count(d) == 3);
+    arvore* a1;
+    arvore* a2;
     
-        arvore* e;
-        e = NULL;
-        ASSERT(count(e) == 0);
-        
-        int existe;
-        remove_elemento(a, 1, &existe); printf("\n");
-        remove_elemento(b, 1, &existe); printf("\n");
-        remove_elemento(c, 1, &existe); printf("\n");
-        remove_elemento(d, 1, &existe); printf("\n");
-        remove_elemento(e, 1, &existe); printf("\n");
+    TEST("União de arvores NULL com NULL da NULL");
+    {
+        monta_arvore(0, &a1);
+        monta_arvore(0, &a2);
 
-        free(a);
-        free(b);
-        free(c);
-        free(d);
+        uniao(&a1, a2); 
+        ASSERT(a1 == NULL);
 
-        
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }    
+
+    TEST("União de arvores NULL com 7 da 7");
+    {
+        monta_arvore(0, &a1);
+        monta_arvore(1, &a2, 7);
+
+        uniao(&a1, a2); 
+        ASSERT(a1->dado == 7 && a1->esq == NULL && a1->dir == NULL);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
     }
-*/
 
-//    ASSERT_EQUALS_FLOAT(1, 1);
+    TEST("União de arvores 7 com NULL");
+    {
+        monta_arvore(1, &a1, 7);
+        monta_arvore(0, &a2);
 
+        uniao(&a1, a2); 
+        ASSERT(a1->dado == 7 && a1->esq == NULL && a1->dir == NULL);
 
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("União de arvores 7 com 7");
+    {
+        monta_arvore(1, &a1, 7);
+        monta_arvore(1, &a2, 7);
+
+        uniao(&a1, a2); 
+        ASSERT(a1->dado == 7 && a1->esq == NULL && a1->dir == NULL);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("União de arvores 7 com 7 8");
+    {
+        monta_arvore(1, &a1, 7);
+        monta_arvore(2, &a2, 7, 8);
+
+        uniao(&a1, a2); 
+        ASSERT(a1->dado == 7 && a1->esq == NULL && a1->dir->dado == 8);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("União de arvores 7 8 com 7 6 8 9");
+    {    
+        monta_arvore(2, &a1, 7, 8);
+        monta_arvore(4, &a2, 7, 6, 8, 9);
+
+        uniao(&a1, a2); 
+        ASSERT(
+            a1->dado == 7 && 
+            a1->esq->dado == 6 && 
+            a1->dir->dado == 8 && 
+            a1->dir->dir->dado == 9
+        );
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("União de arvores 7 6 8 9 com 6 9");
+    {
+        monta_arvore(4, &a1, 7, 6, 8, 9);
+        monta_arvore(2, &a2, 6, 9);
+
+        uniao(&a1, a2); 
+        ASSERT(
+            a1->dado == 7 && 
+            a1->esq->dado == 6 && 
+            a1->dir->dado == 8 && 
+            a1->dir->dir->dado == 9
+        );
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+}END_TEST()
+
+START_TEST("Testar subtração de arvores"){
+
+    arvore* a1;
+    arvore* a2;
+
+    TEST("Subtração de arvores NULL com NULL deve retornar NULL")
+    {
+        monta_arvore(0, &a1);
+        monta_arvore(0, &a2);
+        
+        subtracao(&a1, a2);
+        ASSERT(a1 == NULL);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("Subtração de arvores NULL com 1 deve retornar NULL")
+    {
+        monta_arvore(0, &a1);
+        monta_arvore(1, &a2, 1);
+        
+        subtracao(&a1, a2);
+        ASSERT(a1 == NULL);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("Subtração de arvores 1 com NULL deve retornar 1")
+    {
+        monta_arvore(1, &a1, 1);
+        monta_arvore(0, &a2);
+        
+        subtracao(&a1, a2);
+        ASSERT(a1->dado == 1);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("Subtração de arvores 1 com 1 deve retornar NULL")
+    {
+        monta_arvore(1, &a1, 1);
+        monta_arvore(1, &a2, 1);
+        
+        subtracao(&a1, a2);
+        ASSERT(a1 == NULL);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("Subtração de arvores 1 2 com 2 deve retornar 1")
+    {
+        monta_arvore(2, &a1, 1, 2);
+        monta_arvore(1, &a2, 2);
+        
+        subtracao(&a1, a2);
+        ASSERT(a1->dado == 1);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("Subtração de arvores 1 2 0 com 1 deve retornar 2 0")
+    {
+        monta_arvore(3, &a1, 0, 1, 2);
+        monta_arvore(1, &a2, 1);
+        
+        subtracao(&a1, a2);
+        ASSERT(a1->dado == 2 && a1->esq->dado == 0);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("Subtração de arvores 1 2 0 com 2 0 deve retornar 1")
+    {
+        monta_arvore(3, &a1, 0, 1, 2);
+        monta_arvore(2, &a2, 2, 0);
+        
+        subtracao(&a1, a2);
+        ASSERT(a1->dado == 1);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("Subtração de arvores 7 6 8 9 com 6 9 deve retornar 8 7");
+    {
+        monta_arvore(4, &a1, 7, 6, 8, 9);
+        monta_arvore(2, &a2, 6, 9);
+
+        subtracao(&a1, a2); 
+        ASSERT(
+            a1->dado == 8 && 
+            a1->esq->dado == 7 && 
+        1);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+    
+}END_TEST()
+
+START_TEST("Testar Interseção de arvores"){
+
+    arvore* a1;
+    arvore* a2;
+
+    TEST("Interseção de arvores NULL com NULL deve retornar NULL")
+    {
+        monta_arvore(0, &a1);
+        monta_arvore(0, &a2);
+        
+        intersecao(&a1, a2);
+        ASSERT(a1 == NULL);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("Interseção de arvores NULL com 1 deve retornar NULL")
+    {
+        monta_arvore(0, &a1);
+        monta_arvore(1, &a2, 1);
+        
+        intersecao(&a1, a2);
+        ASSERT(a1 == NULL);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("Interseção de arvores 1 com NULL deve retornar NULL")
+    {
+        monta_arvore(1, &a1, 1);
+        monta_arvore(0, &a2);
+        
+        intersecao(&a1, a2);
+        ASSERT(a1 == NULL);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("Interseção de arvores 1 com 1 deve retornar 1")
+    {
+        monta_arvore(1, &a1, 1);
+        monta_arvore(1, &a2, 1);
+        
+        intersecao(&a1, a2);
+        ASSERT(a1->dado == 1);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("Interseção de arvores 1 2 com 2 deve retornar 2")
+    {
+        monta_arvore(2, &a1, 1, 2);
+        monta_arvore(1, &a2, 2);
+        
+        intersecao(&a1, a2);
+        ASSERT(a1->dado == 2);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("Interseção de arvores 1 2 0 com 1 deve retornar 1")
+    {
+        monta_arvore(3, &a1, 0, 1, 2);
+        monta_arvore(1, &a2, 1);
+        
+        intersecao(&a1, a2);
+        ASSERT(a1->dado == 1);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("Interseção de arvores 1 2 0 com 2 0 deve retornar 2 0")
+    {
+        monta_arvore(3, &a1, 0, 1, 2);
+        monta_arvore(2, &a2, 2, 0);
+        
+        intersecao(&a1, a2);
+        ASSERT(a1->dado == 2 && a1->esq->dado == 0);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("Interseção de arvores 7 6 8 9 com 6 9 deve retornar 9 6");
+    {
+        monta_arvore(4, &a1, 7, 6, 8, 9);
+        monta_arvore(2, &a2, 6, 9);
+
+        intersecao(&a1, a2); 
+        ASSERT(
+            a1->dado == 9 && 
+            a1->esq->dado == 6 && 
+        1);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+    
+}END_TEST()
 
 END_TESTS()

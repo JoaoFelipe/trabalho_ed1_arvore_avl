@@ -201,7 +201,37 @@ int remove_elemento(arvore** t, int valor){
     }
 }
 
+void uniao(arvore** t, arvore* outra){
+    if (outra != NULL){
+        inserir(t, outra->dado, 0);
+        uniao(t, outra->esq);
+        uniao(t, outra->dir);
+    }
+}
 
+void subtracao(arvore** t, arvore* outra){
+    arvore* pai;
+    arvore* aux;
+    if (outra != NULL){
+        aux = *t;
+        if (busca(&aux, &pai, outra->dado) == 1)
+            remove_elemento(t, outra->dado);
+        subtracao(t, outra->esq);
+        subtracao(t, outra->dir);
+    }
+}
 
+void intersecao(arvore** t, arvore* outra){
+    arvore* pai;
+    arvore* aux;
+    if (*t != NULL){
+        intersecao(&(*t)->esq, outra);
+        intersecao(&(*t)->dir, outra);
+        aux = outra;
+        if (busca(&aux, &pai, (*t)->dado) != 1)
+            remove_elemento(t, (*t)->dado);
+  
+    }
+}
 
 
