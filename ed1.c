@@ -172,11 +172,13 @@ int remove_simples(arvore** t){
             filho = filho->esq;
         }
         (*t)->dado = filho->dado;
-        if (pai == NULL){
+        if (pai == NULL)
             (*t)->dir = filho->dir;
-            balancear_esq(t);
-        }else
-            pai->esq = NULL;
+        else{
+            pai->esq = filho->dir;
+            balancear_dir(&pai); 
+        }        
+        balancear_esq(t);
         
         free(filho);
     }

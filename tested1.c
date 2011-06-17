@@ -320,6 +320,68 @@ START_TEST("Testar Remoção da arvore") {
         desocupar_arvore(t);
     }
 
+    //        5     ->                     5
+    //    3      8                   3           9
+    //  2  4   7    11            2     4     7     11
+    //1       6   9     12      1            6    10   12
+    //              10                             
+    TEST("remove elemento 8 da arvore com elementos 5, 3, 8, 2, 4, 7, 11, 1, 5, 9, 12, 10")
+    {
+        monta_arvore(12, &t, 5, 3, 8, 2, 4, 7, 11, 1, 6, 9, 12, 10);
+        ASSERT(
+            t->dado == 5 && 
+            t->bal == 1 &&
+            t->esq->dado == 3 && 
+            t->esq->bal == -1 &&
+            t->esq->esq->dado == 2 &&
+            t->esq->esq->bal == -1 &&
+            t->esq->esq->esq->dado == 1 &&
+            t->esq->esq->esq->bal == 0 &&
+            t->esq->dir->dado == 4 &&
+            t->esq->dir->bal == 0 &&
+            t->dir->dado == 8 &&
+            t->dir->bal == 1 &&
+            t->dir->esq->dado == 7 &&
+            t->dir->esq->bal == -1 &&
+            t->dir->esq->esq->dado == 6 &&
+            t->dir->esq->esq->bal == 0 &&
+            t->dir->dir->dado == 11 &&
+            t->dir->dir->bal == -1 &&
+            t->dir->dir->esq->dado == 9 &&
+            t->dir->dir->esq->bal == 1 &&
+            t->dir->dir->esq->dir->dado == 10 &&
+            t->dir->dir->esq->dir->bal == 0 &&
+            t->dir->dir->dir->dado == 12 &&
+            t->dir->dir->dir->bal == 0 &&
+        1);        
+        remove_elemento(&t, 8);
+        ASSERT(
+            t->dado == 5 && 
+            t->bal == 0 &&
+            t->esq->dado == 3 && 
+            t->esq->bal == -1 &&
+            t->esq->esq->dado == 2 &&
+            t->esq->esq->bal == -1 &&
+            t->esq->esq->esq->dado == 1 &&
+            t->esq->esq->esq->bal == 0 &&
+            t->esq->dir->dado == 4 &&
+            t->esq->dir->bal == 0 &&
+            t->dir->dado == 9 &&
+            t->dir->bal == 0 &&
+            t->dir->esq->dado == 7 &&
+            t->dir->esq->bal == -1 &&
+            t->dir->esq->esq->dado == 6 &&
+            t->dir->esq->esq->bal == 0 &&
+            t->dir->dir->dado == 11 &&
+            t->dir->dir->bal == 0 && 
+            t->dir->dir->esq->dado == 10 &&
+            t->dir->dir->esq->bal == 0 &&
+            t->dir->dir->dir->dado == 12 &&
+            t->dir->dir->dir->bal == 0 &&
+        1);
+        desocupar_arvore(t);
+    }
+
 
     
 } END_TEST()
