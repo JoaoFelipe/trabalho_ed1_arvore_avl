@@ -19,6 +19,15 @@ void desocupar_arvore(arvore* t){
     }
 }
 
+void clonar(arvore* t, arvore** clone) {
+	if (t != NULL) {
+		inserir(&clone, t->dado, 1);
+		if ((t->esq) != NULL)
+			clonar(t->esq, clone);
+		if ((t->dir) != NULL)
+			clonar(t->dir, clone);
+	}
+}
 
 int busca(arvore** t, arvore** pai, int elemento){
     arvore** temp;    
@@ -125,8 +134,6 @@ int balancear_dir(arvore** t){
     }
 } 
 
-
-
 void novo_no_arvore(arvore** t, int valor){
     *t = malloc(sizeof(arvore));
     (*t)->dado = valor;
@@ -140,7 +147,7 @@ int inserir(arvore** t, int valor, int texto){
         return 1;
     }else if ((*t)->dado == valor){
         if (texto) 
-            printf("Já existe este elemento na arvore!");
+            printf("Já existe o elemento %d elemento na árvore!\n", valor);
         return 0;
     }else if ((*t)->dado > valor){
         if (inserir(&((*t)->esq), valor, texto))
@@ -150,11 +157,6 @@ int inserir(arvore** t, int valor, int texto){
             return balancear_dir(t);
     }
 }
-
-
-
-
-
 
 int remove_simples(arvore** t){
    if ((*t)->esq == NULL && (*t)->dir == NULL){
@@ -203,37 +205,70 @@ int remove_elemento(arvore** t, int valor){
     }
 }
 
-void uniao(arvore** t, arvore* outra){
+void uniao_recursiva(arvore** t, arvore* outra){
     if (outra != NULL){
         inserir(t, outra->dado, 0);
-        uniao(t, outra->esq);
-        uniao(t, outra->dir);
+        uniao_recursiva(t, outra->esq);
+        uniao_recursiva(t, outra->dir);
     }
 }
 
-void subtracao(arvore** t, arvore* outra){
+void uniao(arvore* t1, arvore* t2, arvore** resultado) {
+	clonar(t1, resultado);
+	uniao_recursiva(resultado, t2);
+}
+
+void subtracao_recursiva(arvore** t, arvore* outra){
+	printf("entrou\n");
     arvore* pai;
     arvore* aux;
+    printf("lol1\n");
     if (outra != NULL){
+    	printf("outra não é null\n");
         aux = *t;
         if (busca(&aux, &pai, outra->dado) == 1)
             remove_elemento(t, outra->dado);
-        subtracao(t, outra->esq);
-        subtracao(t, outra->dir);
+        subtracao_recursiva(t, outra->esq);
+        subtracao_recursiva(t, outra->dir);
     }
+    printf("lol2\n");
 }
 
-void intersecao(arvore** t, arvore* outra){
+void subtracao(arvore* t1, arvore* t2, arvore** resultado) {
+	clonar(t1, resultado);
+	subtracao_recursiva(resultado, t2);
+	if ((*resultado) != NULL) {
+		printf("%d\n", (*resultado)->dado);
+		printf("wtf");
+	}
+}
+
+void intersecao_recursiva(arvore** t, arvore* outra){
     arvore* pai;
     arvore* aux;
     if (*t != NULL){
-        intersecao(&(*t)->esq, outra);
-        intersecao(&(*t)->dir, outra);
+        intersecao_recursiva(&(*t)->esq, outra);
+        intersecao_recursiva(&(*t)->dir, outra);
         aux = outra;
         if (busca(&aux, &pai, (*t)->dado) != 1)
             remove_elemento(t, (*t)->dado);
-  
     }
+}
+
+void intersecao(arvore* t1, arvore* t2, arvore** resultado) {
+	clonar(t1, resultado);
+	intersecao_recursiva(resultado, t2);
+}
+
+int pegar_maior_altura(arvore* t, int atual) {
+	int alt_esq = 0;
+	int alt_dir = 0;
+	if (t->esq != NULL)
+		alt_esq = pegar_maior_altura(t->esq, atual + 1);
+	if (t->dir != NULL)
+		alt_dir = pegar_maior_altura(t->dir, atual + 1);
+	int altura = alt_esq > alt_dir ? alt_esq : alt_dir;
+	return altura > atual ? altura : atual;
 }
 
 
