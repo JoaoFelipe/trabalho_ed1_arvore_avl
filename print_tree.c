@@ -165,6 +165,7 @@ int get_numero() {
 
 void interpretar_comando() {
 	int numero;
+	arvore_atual = NULL;
 	switch (opcao_selecionada) {
 		case 0:	
 			titulo = "Exibindo arvore T1";
@@ -175,19 +176,23 @@ void interpretar_comando() {
 			arvore_atual = t2;
 			break;
 		case 2:
-			titulo = "Exibinco a intersecao entre T1 e T2";
-			//TODO: intersecao
+			titulo = "Exibindo a intersecao entre T1 e T2";
+			intersecao(t1, t2, &arvore_atual);
 			break;
 		case 3:
-			//TODO: uniao
+			titulo = "Exibindo a uniao entre T1 e T2";
+			uniao(t1, t2, &arvore_atual);
 			break;
 		case 4:
-			//TODO: t1 - t2
+			titulo = "Exibindo a subtração de T1 com T2";
+			subtracao(t1, t2, &arvore_atual);
 			break;
 		case 5:
-			//TODO: t2 - t1
+			titulo = "Exibindo a subtração de T2 com T1";
+			subtracao(t2, t1, &arvore_atual);
 			break;
 		case 6:
+			titulo = "Exibindo resultados da busca";
 			//TODO: busca
 			break;
 		case 7:
@@ -262,6 +267,7 @@ int main() {
 	opcao_selecionada = -1;
 	arvore* t1 = NULL;
 	arvore* t2 = NULL;
+	arvore_atual = NULL;
 	construir_listas();
 	opcao_selecionada = 0;
 	char key;
