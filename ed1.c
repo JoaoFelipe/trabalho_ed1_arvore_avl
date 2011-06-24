@@ -1,14 +1,8 @@
 #include "malloc.h"
 #include "stdlib.h"
 #include "stdio.h"
+#include "fila.c"
 
-typedef struct _arvore arvore;
-struct _arvore {
-    arvore* dir;
-    arvore* esq;
-    int dado;
-    int bal;
-};
 
 
 void desocupar_arvore(arvore* t){
@@ -17,16 +11,6 @@ void desocupar_arvore(arvore* t){
         desocupar_arvore(t->esq);
         free(t);
     }
-}
-
-void clonar(arvore* t, arvore** clone) {
-	if (t != NULL) {
-		inserir(&clone, t->dado, 1);
-		if ((t->esq) != NULL)
-			clonar(t->esq, clone);
-		if ((t->dir) != NULL)
-			clonar(t->dir, clone);
-	}
 }
 
 int busca(arvore** t, arvore** pai, int elemento){
@@ -135,7 +119,7 @@ int balancear_dir(arvore** t){
 } 
 
 void novo_no_arvore(arvore** t, int valor){
-    *t = malloc(sizeof(arvore));
+    *t = (arvore*)malloc(sizeof(arvore));
     (*t)->dado = valor;
     (*t)->esq = NULL; (*t)->dir = NULL; 
     (*t)->bal = 0;
@@ -205,6 +189,26 @@ int remove_elemento(arvore** t, int valor){
     }
 }
 
+void clonar(arvore* t, arvore** clone) {
+	if (t != NULL) {
+		Fila* fila = NULL;
+		push(&fila, t);
+		arvore* atual = NULL;
+		do {
+			atual = NULL;
+			pop(&fila, &atual);
+			if (atual != NULL) {
+				if (atual->esq != NULL)
+					push(&fila, atual->esq);
+				if (atual->dir != NULL)
+					push(&fila, atual->dir);
+				inserir(clone, atual->dado, 0);
+			}
+		} while (atual != NULL);
+		return;
+	}
+}
+
 void uniao_recursiva(arvore** t, arvore* outra){
     if (outra != NULL){
         inserir(t, outra->dado, 0);
@@ -219,28 +223,20 @@ void uniao(arvore* t1, arvore* t2, arvore** resultado) {
 }
 
 void subtracao_recursiva(arvore** t, arvore* outra){
-	printf("entrou\n");
     arvore* pai;
     arvore* aux;
-    printf("lol1\n");
     if (outra != NULL){
-    	printf("outra não é null\n");
         aux = *t;
         if (busca(&aux, &pai, outra->dado) == 1)
             remove_elemento(t, outra->dado);
         subtracao_recursiva(t, outra->esq);
         subtracao_recursiva(t, outra->dir);
     }
-    printf("lol2\n");
 }
 
 void subtracao(arvore* t1, arvore* t2, arvore** resultado) {
 	clonar(t1, resultado);
 	subtracao_recursiva(resultado, t2);
-	if ((*resultado) != NULL) {
-		printf("%d\n", (*resultado)->dado);
-		printf("wtf");
-	}
 }
 
 void intersecao_recursiva(arvore** t, arvore* outra){

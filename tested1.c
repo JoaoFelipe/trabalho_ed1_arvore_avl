@@ -518,6 +518,64 @@ START_TEST("Testar Inserção AVL"){
 
 }END_TEST()
 
+START_TEST("Testar clonagem de árvores"){
+
+    arvore* a1;
+    arvore* a2;
+
+    TEST("Clonar árvore NULL deve retornar NULL")
+    {
+        monta_arvore(0, &a1);
+        monta_arvore(0, &a2);
+        clonar(a1, &a2);
+        ASSERT(a2 == NULL);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("Clonar árvore com 1 elemento deve retornar árvore com 1 elemento")
+    {
+        monta_arvore(1, &a1, 1);
+        monta_arvore(0, &a2);
+        
+        clonar(a1, &a2);
+        ASSERT(a2->dado == a1->dado);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("Clonar árvore com 2 elementos deve retornar árvore com 2 elementos")
+    {
+        monta_arvore(2, &a1, 1, 2);
+        monta_arvore(0, &a2);
+        
+        clonar(a1, &a2);
+        ASSERT(a2->dado == a1->dado);
+        ASSERT(a2->dir->dado == a1->dir->dado);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+
+    TEST("Clonar árvore com 4 elementos deve retornar árvore com 4 elementos")
+    {
+        monta_arvore(4, &a1, 7, 6, 8, 9);
+        monta_arvore(0, &a2);
+        
+        clonar(a1, &a2);
+        ASSERT(a2->dado == a1->dado);
+        ASSERT(a2->esq->dado == a1->esq->dado);
+        ASSERT(a2->dir->dado == a1->dir->dado);
+        ASSERT(a2->dir->dir->dado == a1->dir->dir->dado);
+
+        desocupar_arvore(a1);
+        desocupar_arvore(a2);
+    }
+    
+}END_TEST()
+
 START_TEST("Testar união de arvores"){
 
     arvore* a1;
@@ -636,7 +694,6 @@ START_TEST("Testar subtração de arvores"){
 
         desocupar_arvore(a1);
         desocupar_arvore(a2);
-        printf("ok1\n");
     }
 
     TEST("Subtração de arvores NULL com 1 deve retornar NULL")
@@ -649,7 +706,6 @@ START_TEST("Testar subtração de arvores"){
 
         desocupar_arvore(a1);
         desocupar_arvore(a2);
-        printf("ok2\n");
     }
 
     TEST("Subtração de arvores 1 com NULL deve retornar 1")
@@ -662,7 +718,6 @@ START_TEST("Testar subtração de arvores"){
 
         desocupar_arvore(a1);
         desocupar_arvore(a2);
-        printf("ok3\n");
     }
 
     TEST("Subtração de arvores 1 com 1 deve retornar NULL")
@@ -675,7 +730,6 @@ START_TEST("Testar subtração de arvores"){
 
         desocupar_arvore(a1);
         desocupar_arvore(a2);
-        printf("ok4\n");
     }
 
     TEST("Subtração de arvores 1 2 com 2 deve retornar 1")
@@ -688,7 +742,6 @@ START_TEST("Testar subtração de arvores"){
 
         desocupar_arvore(a1);
         desocupar_arvore(a2);
-        printf("ok5\n");
     }
 
     TEST("Subtração de arvores 1 2 0 com 1 deve retornar 2 0")
@@ -701,7 +754,6 @@ START_TEST("Testar subtração de arvores"){
 
         desocupar_arvore(a1);
         desocupar_arvore(a2);
-        printf("ok6\n");
     }
 
     TEST("Subtração de arvores 1 2 0 com 2 0 deve retornar 1")
@@ -714,7 +766,6 @@ START_TEST("Testar subtração de arvores"){
 
         desocupar_arvore(a1);
         desocupar_arvore(a2);
-        printf("ok7\n");
     }
 
     TEST("Subtração de arvores 7 6 8 9 com 6 9 deve retornar 8 7");
@@ -724,13 +775,12 @@ START_TEST("Testar subtração de arvores"){
 
         subtracao(a1, a2, &resultado);
         ASSERT(
-            resultado->dado == 8 && 
-            resultado->esq->dado == 7 && 
+            resultado->dado == 7 && 
+            resultado->dir->dado == 8 && 
         1);
 
         desocupar_arvore(a1);
         desocupar_arvore(a2);
-        printf("ok8\n");
     }
     
 }END_TEST()
@@ -835,66 +885,6 @@ START_TEST("Testar Interseção de arvores"){
             resultado->dado == 9 && 
             resultado->esq->dado == 6 && 
         1);
-
-        desocupar_arvore(a1);
-        desocupar_arvore(a2);
-    }
-    
-}END_TEST()
-
-START_TEST("Testar clonagem de árvores"){
-
-    arvore* a1;
-    arvore* a2;
-
-    TEST("Clonar árvore NULL deve retornar NULL")
-    {
-        monta_arvore(0, &a1);
-        monta_arvore(0, &a2);
-        
-        clonar(a1, &a2);
-        ASSERT(a2 == NULL);
-
-        desocupar_arvore(a1);
-        desocupar_arvore(a2);
-    }
-
-    TEST("Clonar árvore com 1 elemento deve retornar árvore com 1 elemento")
-    {
-        monta_arvore(1, &a1, 1);
-        monta_arvore(0, &a2);
-        
-        clonar(a1, &a2);
-        ASSERT(a2->dado == 1);
-
-        desocupar_arvore(a1);
-        desocupar_arvore(a2);
-    }
-
-    TEST("Clonar árvore com 2 elementos deve retornar árvore com 2 elementos")
-    {
-        monta_arvore(2, &a1, 1, 2);
-        monta_arvore(0, &a2);
-        
-        clonar(a1, &a2);
-        ASSERT(a2->dado == 1);
-        ASSERT(a2->dir != NULL);
-
-        desocupar_arvore(a1);
-        desocupar_arvore(a2);
-    }
-
-    TEST("Clonar árvore com 5 elementos deve retornar árvore com 5 elementos")
-    {
-        monta_arvore(5, &a1, 3, 4, 1, 5, 2);
-        monta_arvore(0, &a2);
-        
-        clonar(a1, &a2);
-        ASSERT(a2->dado == 2);
-        ASSERT(a2->esq != NULL);
-        ASSERT(a2->dir != NULL);
-        ASSERT(a2->dir->esq != NULL);
-        ASSERT(a2->dir->dir != NULL);
 
         desocupar_arvore(a1);
         desocupar_arvore(a2);
