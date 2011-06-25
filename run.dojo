@@ -1,1 +1,0 @@
-gcc tested1.c -o tested1.test && ./tested1.test

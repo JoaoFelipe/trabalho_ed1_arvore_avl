@@ -1,5 +1,7 @@
 #include "simplectest/tests.h"
-#include "ed1.c"
+#include "fila.h"
+#include "avl.c"
+#include "fila.c"
 #include <stdarg.h>
 
 void monta_arvore(int tamanho, arvore** t, ...){
@@ -294,6 +296,28 @@ START_TEST("Testar Remoção da arvore") {
         1);
         desocupar_arvore(t);
     }
+    
+    //    7    ->  7
+    //  5   8    5   8 
+    // 4 6   9  4     9
+    TEST("remove elemento 6 da arvore com elementos 7 5 8 4 6 9")
+    {
+        monta_arvore(6, &t, 7, 5, 8, 4, 6, 9);
+        remove_elemento(&t, 6);
+        ASSERT(
+            t->dado == 7 && 
+            t->bal == 0 &&
+            t->esq->dado == 5 &&
+            t->esq->bal == -1 &&
+            t->esq->esq->dado == 4 &&
+            t->esq->esq->bal == 0 &&
+            t->dir->dado == 8 &&
+            t->dir->bal == 1 &&
+            t->dir->dir->dado == 9 &&
+            t->dir->dir->bal == 0 &&
+        1);
+        desocupar_arvore(t);
+    }    
 
     //      9     ->     6
     //  5       11    5     9
@@ -775,8 +799,8 @@ START_TEST("Testar subtração de arvores"){
 
         subtracao(a1, a2, &resultado);
         ASSERT(
-            resultado->dado == 7 && 
-            resultado->dir->dado == 8 && 
+            resultado->dado == 8 && 
+            resultado->esq->dado == 7 && 
         1);
 
         desocupar_arvore(a1);

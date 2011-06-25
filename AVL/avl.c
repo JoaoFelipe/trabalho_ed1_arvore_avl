@@ -1,7 +1,8 @@
 #include "malloc.h"
 #include "stdlib.h"
 #include "stdio.h"
-#include "fila.c"
+#include "avl.h"
+#include "fila.h"
 
 
 
@@ -14,10 +15,10 @@ void desocupar_arvore(arvore* t){
 }
 
 int busca(arvore** t, arvore** pai, int elemento){
-    arvore** temp;    
+    arvore** temp;
     if (*t == NULL)
         return 0;
-    else{ 
+    else{
         if ((*t)->dado == elemento)
             return 1;
         else {
@@ -27,16 +28,16 @@ int busca(arvore** t, arvore** pai, int elemento){
                 else {
                     *pai = *t;
                     *t = (*t)->esq;
-                }           
+                }
             } else {
                 if ((*t)->dir == NULL)
                     return 3;
                 else {
                     *pai = *t;
                     *t = (*t)->dir;
-                } 
+                }
             }
-            return busca(t, pai, elemento); 
+            return busca(t, pai, elemento);
         }
     }
 }
@@ -47,16 +48,16 @@ void rotacao_esquerda(arvore** t){
     arvore* ptv;
     ptu = (*t)->esq;
     if (ptu->bal == -1){
-        (*t)->esq = ptu->dir; 
+        (*t)->esq = ptu->dir;
         ptu->dir = (*t);
         (*t)->bal = 0; (*t) = ptu;
     } else {
         ptv = ptu->dir;
-        ptu->dir = ptv->esq; 
+        ptu->dir = ptv->esq;
         ptv->esq = ptu;
-        (*t)->esq = ptv->dir; 
+        (*t)->esq = ptv->dir;
         ptv->dir = (*t);
-        
+
         (*t)->bal = (ptv->bal == -1)? 1: 0;
         ptu->bal = (ptv->bal == 1)? -1: 0;
 
@@ -70,16 +71,16 @@ void rotacao_direita(arvore** t){
     arvore* ptv;
     ptu = (*t)->dir;
     if (ptu->bal == 1){
-        (*t)->dir = ptu->esq; 
+        (*t)->dir = ptu->esq;
         ptu->esq = (*t);
         (*t)->bal = 0; (*t) = ptu;
     } else {
         ptv = ptu->esq;
-        ptu->esq = ptv->dir; 
+        ptu->esq = ptv->dir;
         ptv->dir = ptu;
-        (*t)->dir = ptv->esq; 
+        (*t)->dir = ptv->esq;
         ptv->esq = (*t);
-        
+
         (*t)->bal = (ptv->bal == 1)? -1: 0;
         ptu->bal = (ptv->bal == -1)? 1: 0;
 
@@ -88,57 +89,63 @@ void rotacao_direita(arvore** t){
     (*t)->bal = 0;
 }
 
-int balancear_esq(arvore** t){
+int balancear_esq(arvore** t, int ins){
     int* balanco = &(*t)->bal;
+    int retorno;
     switch (*balanco){
-        case 0: 
+        case 0:
             *balanco = -1;
-            return 1;  
-        case 1: 
+            return ins? 1: 0;
+        case 1:
             *balanco = 0;
-            return 0;  
-        case -1: 
+            return ins? 0: 1;
+        case -1:
+            retorno = ((!ins) && ((*t)->esq->bal != 0))? 1: 0;
             rotacao_esquerda(t);
-            return 0;
-    }
-} 
+            return retorno;
 
-int balancear_dir(arvore** t){
-    int* balanco = &(*t)->bal;
-    switch (*balanco){
-        case 0: 
-            *balanco  = 1;
-            return 1;  
-        case -1: 
-            *balanco = 0;
-            return 0;  
-        case 1: 
-            rotacao_direita(t);
-            return 0;
+
     }
-} 
+}
+
+int balancear_dir(arvore** t, int ins){
+    int* balanco = &(*t)->bal;
+    int retorno;
+    switch (*balanco){
+        case 0:
+            *balanco  = 1;
+            return ins? 1: 0;
+        case -1:
+            *balanco = 0;
+            return ins? 0: 1;
+        case 1:
+            retorno = ((!ins) && ((*t)->dir->bal != 0))? 1: 0;
+            rotacao_direita(t);
+            return retorno;
+    }
+}
 
 void novo_no_arvore(arvore** t, int valor){
     *t = (arvore*)malloc(sizeof(arvore));
     (*t)->dado = valor;
-    (*t)->esq = NULL; (*t)->dir = NULL; 
+    (*t)->esq = NULL; (*t)->dir = NULL;
     (*t)->bal = 0;
 }
 
-int inserir(arvore** t, int valor, int texto){ 
-    if (*t == NULL){    
+int inserir(arvore** t, int valor, int texto){
+    if (*t == NULL){
         novo_no_arvore(t, valor);
         return 1;
     }else if ((*t)->dado == valor){
-        if (texto) 
+        if (texto)
             printf("Já existe o elemento %d elemento na árvore!\n", valor);
         return 0;
     }else if ((*t)->dado > valor){
         if (inserir(&((*t)->esq), valor, texto))
-            return balancear_esq(t);
+            return balancear_esq(t, 1);
     }else if ((*t)->dado < valor){
         if (inserir(&((*t)->dir), valor, texto))
-            return balancear_dir(t);
+            return balancear_dir(t, 1);
     }
 }
 
@@ -146,9 +153,9 @@ int remove_simples(arvore** t){
    if ((*t)->esq == NULL && (*t)->dir == NULL){
         free(*t);
         *t = NULL;
-    } else if ((*t)->dir == NULL) 
+    } else if ((*t)->dir == NULL)
         *t = (*t)->esq;
-    else if ((*t)->esq == NULL) 
+    else if ((*t)->esq == NULL)
         *t = (*t)->dir;
     else {
         arvore* pai = NULL;
@@ -162,49 +169,52 @@ int remove_simples(arvore** t){
             (*t)->dir = filho->dir;
         else{
             pai->esq = filho->dir;
-            balancear_dir(&pai); 
-        }        
-        balancear_esq(t);
-        
+            balancear_dir(&pai, 0);
+        }
+        balancear_esq(t, 0);
+
         free(filho);
     }
 }
 
-int remove_elemento(arvore** t, int valor){ 
-    if (*t == NULL){    
+int remove_elemento(arvore** t, int valor){
+    if (*t == NULL){
         return 0;
     } else if ((*t)->dado == valor){
          remove_simples(t);
          return 1;
     } else if ((*t)->dado > valor){
         if (remove_elemento(&((*t)->esq), valor)){
-            balancear_dir(t);
-            return 1;
+            return balancear_dir(t, 0);
         }
     } else {// if ((*t)->dado < valor){
         if (remove_elemento(&((*t)->dir), valor)){
-            balancear_esq(t);
-            return 1;
-        } 
+            return balancear_esq(t, 0);
+        }
     }
 }
 
 void clonar(arvore* t, arvore** clone) {
+	*clone = NULL;
 	if (t != NULL) {
 		Fila* fila = NULL;
-		push(&fila, t);
+		fila = (Fila*)malloc(sizeof(Fila));
+		fila->inicio = NULL;
+		fila->fim = NULL;
+		push(fila, t);
 		arvore* atual = NULL;
 		do {
 			atual = NULL;
-			pop(&fila, &atual);
+			pop(fila, &atual);
 			if (atual != NULL) {
 				if (atual->esq != NULL)
-					push(&fila, atual->esq);
+					push(fila, atual->esq);
 				if (atual->dir != NULL)
-					push(&fila, atual->dir);
+					push(fila, atual->dir);
 				inserir(clone, atual->dado, 0);
 			}
 		} while (atual != NULL);
+		free(fila);
 		return;
 	}
 }

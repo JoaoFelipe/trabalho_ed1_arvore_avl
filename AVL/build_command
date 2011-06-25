@@ -1,0 +1,2 @@
+gcc -o avl.elf fila.c avl.c main.c -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -L/usr/lib -lSDL -lSDL_ttf -lSDL_gfx
+
