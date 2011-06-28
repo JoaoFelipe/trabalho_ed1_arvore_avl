@@ -314,7 +314,12 @@ void mensagem_escolher(){
     sprintf(m1, "Digite o numero:");
     sprintf(m2, "1- T1");
     sprintf(m3, "2- T2");
+}
 
+void mensagem_salvar_arvore_atual() {
+	sprintf(m1, "Para salvar este resultado em uma das 2 arvores, digte (ou pressione espaco para cancelar):");
+    sprintf(m2, "1- T1");
+    sprintf(m3, "2- T2");
 }
 
 
@@ -360,79 +365,86 @@ void monitorar_input(int status){
     if (status == 1){
         int numero = atoi(input);
         switch (input_tipo){
-            case -1:
+        case -1:
+            arvore_atual = t1;
+            ler_numero(5);
+            break;
+        case -0:
+            arvore_atual = t2;
+            ler_numero(6);
+            break;
+        case 1:
+            inserir(&t1, numero, 0);
+			arvore_atual = t1;
+			mensagem_vazia();
+			atualizar_titulo("Exibindo T1 depois de inserir um elemento");
+            break;
+        case 2:
+            inserir(&t2, numero, 0);
+			arvore_atual = t2;
+			mensagem_vazia();
+			atualizar_titulo("Exibindo T2 depois de inserir um elemento");
+            break;
+        case 3:
+            remove_elemento(&t1, numero);
+			arvore_atual = t1;
+			mensagem_vazia();
+			atualizar_titulo("Exibindo T1 depois de remover um elemento");
+            break;
+        case 4:
+            remove_elemento(&t2, numero);
+			arvore_atual = t2;
+			mensagem_vazia();
+			atualizar_titulo("Exibindo T2 depois de remover um elemento");
+            break;
+        case 5:
+            inserir(&t1, numero, 0);
+            sprintf(input, "");
+			arvore_atual = t1;
+			break;
+        case 6:
+            inserir(&t2, numero, 0);
+            sprintf(input, "");
+			arvore_atual = t2;
+			break;
+        case 8:
+            if (numero == 1){
                 arvore_atual = t1;
-                ler_numero(5);
-                break;
-            case -0:
+                atualizar_titulo("Buscando em T1");
+            } else {
                 arvore_atual = t2;
-                ler_numero(6);
-                break;
-            case 1:
-                inserir(&t1, numero, 0);
-				arvore_atual = t1;
-				mensagem_vazia();
-				atualizar_titulo("Exibindo T1 depois de inserir um elemento");
-                break;
-            case 2:
-                inserir(&t2, numero, 0);
-				arvore_atual = t2;
-				mensagem_vazia();
-				atualizar_titulo("Exibindo T2 depois de inserir um elemento");
-                break;
-            case 3:
-                remove_elemento(&t1, numero);
-				arvore_atual = t1;
-				mensagem_vazia();
-				atualizar_titulo("Exibindo T1 depois de remover um elemento");
-                break;
-            case 4:
-                remove_elemento(&t2, numero);
-				arvore_atual = t2;
-				mensagem_vazia();
-				atualizar_titulo("Exibindo T2 depois de remover um elemento");
-                break;
-            case 5:
-                inserir(&t1, numero, 0);
-                sprintf(input, "");
-				arvore_atual = t1;
-				break;
-            case 6:
-                inserir(&t2, numero, 0);
-                sprintf(input, "");
-				arvore_atual = t2;
-				break;
-            case 8:
-                if (numero == 1){
-                    arvore_atual = t1;
-                    atualizar_titulo("Buscando em T1");
-                } else {
-                    arvore_atual = t2;
-                    atualizar_titulo("Buscando em T2");
-                }
-                ler_numero(9);
-                break;
-            case 9:
-                mensagem_vazia();
-                arvore* temp = NULL;
-                int encontrou = busca(&arvore_atual, &temp, numero);
+                atualizar_titulo("Buscando em T2");
+            }
+            ler_numero(9);
+            break;
+        case 9:
+            mensagem_vazia();
+            arvore* temp = NULL;
+            int encontrou = busca(&arvore_atual, &temp, numero);
 
-                atualizar_titulo("Exibindo arvore encontrada");
-                if (encontrou == 1){
-                    sprintf(m1, "O elemento %i foi encontrado", numero);
-                    if (temp != NULL){
-                        sprintf(m2, "Filho da %s do elemento %i", (temp->esq == arvore_atual)? "esquerda" : "direita", temp->dado);
-                    } else {
-                        sprintf(m2, "Raiz da arvore");
-                    }
-                    sprintf(m3, "Balanco: %i", arvore_atual->bal);
-                } else {
-                    sprintf(m1, "O elemento %i nao foi encontrado", numero);
-                }
-
-              //
-
-
+            atualizar_titulo("Exibindo arvore encontrada");
+            if (encontrou == 1){
+                sprintf(m1, "O elemento %i foi encontrado", numero);
+                if (temp != NULL)
+                    sprintf(m2, "Filho da %s do elemento %i", (temp->esq == arvore_atual)? "esquerda" : "direita", temp->dado);
+                else
+                    sprintf(m2, "Raiz da arvore");
+                sprintf(m3, "Balanco: %i", arvore_atual->bal);
+            }
+            else
+                sprintf(m1, "O elemento %i nao foi encontrado", numero);
+		case 10:
+			mensagem_vazia();
+			if (numero == 1){
+				desocupar_arvore(t1);
+                clonar(arvore_atual, &t1);
+                atualizar_titulo("Arvore salva em T1");
+            } else if (numero == 2) {
+            	desocupar_arvore(t2);
+                clonar(arvore_atual, &t2);
+                atualizar_titulo("Arvore salva em T2");
+            }
+            break;
         }
 
     }
@@ -460,6 +472,9 @@ void interpretar_comando() {
 			}
 			intersecao(t1, t2, &t3);
 			arvore_atual = t3;
+			mensagem_salvar_arvore_atual();
+			sprintf(input, "");
+            input_tipo = 10;
 			break;
 		case 3:
 			atualizar_titulo("Exibindo a uniao entre T1 e T2");
@@ -469,6 +484,9 @@ void interpretar_comando() {
 			}
 			uniao(t1, t2, &t3);
 			arvore_atual = t3;
+			mensagem_salvar_arvore_atual();
+			sprintf(input, "");
+            input_tipo = 10;
 			break;
 		case 4:
 			atualizar_titulo("Exibindo a subtração de T1 com T2");
@@ -478,6 +496,9 @@ void interpretar_comando() {
 			}
 			subtracao(t1, t2, &t3);
 			arvore_atual = t3;
+			mensagem_salvar_arvore_atual();
+			sprintf(input, "");
+            input_tipo = 10;
 			break;
 		case 5:
 			atualizar_titulo("Exibindo a subtração de T2 com T1");
@@ -487,13 +508,15 @@ void interpretar_comando() {
 			}
 			subtracao(t2, t1, &t3);
 			arvore_atual = t3;
+			mensagem_salvar_arvore_atual();
+			sprintf(input, "");
+            input_tipo = 10;
 			break;
 		case 6:
 			atualizar_titulo("Buscar em:");
             mensagem_escolher();
             sprintf(input, "");
             input_tipo = 8;
-			//TODO: busca
 			break;
 		case 7:
 			atualizar_titulo("Inserindo na arvore T1");
@@ -538,8 +561,6 @@ int ler_input(int key){
     if (key == 13)
         return 1;
     return 0;
-
-
 }
 
 int ler_menu(int key){
